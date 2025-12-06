@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noise Sensitivity Detector</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎧 Noise Sensitivity Detector</h1>
+            <p class="subtitle">Analyze the noise levels in your environment</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <button id="startBtn" class="btn btn-primary">Start Monitoring</button>
+                <button id="stopBtn" class="btn btn-secondary" disabled>Stop Monitoring</button>
+            </div>
+
+            <!-- Status Indicator -->
+            <div id="status" class="status">
+                <span class="status-icon">⏸️</span>
+                <span id="statusText">Not monitoring</span>
+            </div>
+
+            <!-- Current Noise Level Display -->
+            <div class="noise-display">
+                <div class="decibel-meter">
+                    <div class="decibel-value" id="decibelValue">-- dB</div>
+                    <div class="decibel-label">Current Noise Level</div>
+                </div>
+            </div>
+
+            <!-- Visual Meter -->
+            <div class="meter-container">
+                <div class="meter-bar" id="meterBar"></div>
+                <div class="meter-labels">
+                    <span>Quiet</span>
+                    <span>Moderate</span>
+                    <span>Loud</span>
+                    <span>Very Loud</span>
+                </div>
+            </div>
+
+            <!-- Sensitivity Analysis -->
+            <div class="analysis-panel" id="analysisPanel">
+                <h2>Environment Analysis</h2>
+                <div class="analysis-content">
+                    <div class="analysis-item">
+                        <span class="analysis-label">Sensitivity Level:</span>
+                        <span id="sensitivityLevel" class="analysis-value">--</span>
+                    </div>
+                    <div class="analysis-item">
+                        <span class="analysis-label">Average Noise:</span>
+                        <span id="avgNoise" class="analysis-value">-- dB</span>
+                    </div>
+                    <div class="analysis-item">
+                        <span class="analysis-label">Peak Noise:</span>
+                        <span id="peakNoise" class="analysis-value">-- dB</span>
+                    </div>
+                    <div class="analysis-item">
+                        <span class="analysis-label">Monitoring Duration:</span>
+                        <span id="duration" class="analysis-value">0s</span>
+                    </div>
+                </div>
+                <div class="recommendation" id="recommendation">
+                    <h3>Recommendation</h3>
+                    <p id="recommendationText">Start monitoring to get recommendations</p>
+                </div>
+            </div>
+
+            <!-- Real-time Waveform Visualization -->
+            <div class="visualization-panel">
+                <h2>Real-time Audio Visualization</h2>
+                <canvas id="waveformCanvas" width="800" height="200"></canvas>
+            </div>
+
+            <!-- Noise History Chart -->
+            <div class="history-panel">
+                <h2>Noise Level History</h2>
+                <canvas id="historyCanvas" width="800" height="150"></canvas>
+            </div>
+        </div>
+
+        <footer>
+            <p class="info">
+                ℹ️ This application uses your device's microphone to measure ambient noise levels.
+                Please allow microphone access when prompted.
+            </p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
