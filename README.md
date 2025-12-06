@@ -19,10 +19,9 @@ A real-time web application that analyzes and measures ambient noise levels in y
   - Words appear with dynamic sizing based on volume
   - Automatic fade-in and fade-out animations
   - Uses Barrio font for dramatic effect
-- **Dynamic Background**:
-  - Changes between Loud.png and Quiet.png based on noise level
-  - Smooth transitions between states
-  - Customizable background images
+- **Custom Background**:
+  - Uses Loud.png as the main background image
+  - Subtle opacity for better UI visibility
 - **Visual Feedback**:
   - Live decibel meter with color-coded display
   - Real-time audio waveform visualization
@@ -48,10 +47,10 @@ The application uses the Web Audio API to:
 
 ### First Time Setup
 
-1. **Add Background Images** (Optional):
-   - Place `Loud.png` and `Quiet.png` in the root directory
+1. **Add Background Image** (Optional):
+   - Place `Loud.png` in the root directory
    - See [IMAGE_SETUP.md](IMAGE_SETUP.md) for detailed instructions
-   - Or use the included placeholder images
+   - Or use the included placeholder image
 
 ### Running the Application
 
@@ -63,10 +62,9 @@ The application uses the Web Audio API to:
 
 ### How It Works
 
-- **Quiet Environment** (< 50 dB): Background shows `Quiet.png`
-- **Loud Environment** (≥ 50 dB): Background shows `Loud.png`
+- **Background**: `Loud.png` serves as the main background at 30% opacity
 - **Spoken Words**: Appear on screen with size based on volume, then fade away
-- **Word Display**: Larger words = louder speech
+- **Word Display**: Larger words = louder speech (40px-200px based on decibel level)
 
 ### Noise Level Categories
 
@@ -131,11 +129,9 @@ Then navigate to `http://localhost:8000`
 - `app.js` - JavaScript application logic with Web Audio API and Speech Recognition
 - `styles.css` - Styling, animations, and responsive design
 - `README.md` - Documentation
-- `IMAGE_SETUP.md` - Instructions for setting up background images
+- `IMAGE_SETUP.md` - Instructions for setting up background image
 - `DEPLOYMENT.md` - Deployment guide
-- `create_placeholders.html` - Tool to generate placeholder images
-- `Loud.png` - Background image for loud environments (add your own)
-- `Quiet.png` - Background image for quiet environments (add your own)
+- `Loud.png` - Main background image (add your own)
 
 ## License
 

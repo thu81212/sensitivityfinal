@@ -36,10 +36,8 @@ class NoiseSensitivityDetector {
         // Speech recognition elements
         this.recognition = null;
         this.wordDisplay = document.getElementById('wordDisplay');
-        this.backgroundContainer = document.getElementById('backgroundContainer');
         this.wordFrequency = {};
         this.currentDecibels = 0;
-        this.isQuiet = true;
 
         this.initEventListeners();
         this.initSpeechRecognition();
@@ -155,22 +153,6 @@ class NoiseSensitivityDetector {
                 wordEl.remove();
             }, 2000);
         }, 3000);
-    }
-
-    updateBackground(decibels) {
-        // Update background based on noise level
-        // Quiet: < 50 dB, Loud: >= 50 dB
-        const shouldBeQuiet = decibels < 50;
-
-        if (shouldBeQuiet !== this.isQuiet) {
-            this.isQuiet = shouldBeQuiet;
-
-            if (this.isQuiet) {
-                this.backgroundContainer.style.backgroundImage = 'url(Quiet.png)';
-            } else {
-                this.backgroundContainer.style.backgroundImage = 'url(Loud.png)';
-            }
-        }
     }
 
     async start() {
@@ -303,9 +285,6 @@ class NoiseSensitivityDetector {
     updateDisplay(decibels) {
         // Store current decibels for word display
         this.currentDecibels = decibels;
-
-        // Update background based on noise level
-        this.updateBackground(decibels);
 
         // Update decibel value
         this.decibelValue.textContent = `${decibels.toFixed(1)} dB`;
