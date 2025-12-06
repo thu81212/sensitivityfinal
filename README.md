@@ -2,6 +2,15 @@
 
 A real-time web application that analyzes and measures ambient noise levels in your environment using the Web Audio API.
 
+## 🚀 Quick Deploy
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/thu81212/sensitivityfinal)
+
+**Other Deployment Options:**
+- **GitHub Pages**: See [DEPLOYMENT.md](DEPLOYMENT.md) for step-by-step instructions
+- **Vercel**: Import from GitHub at [vercel.com](https://vercel.com)
+- **Cloudflare Pages**: Import from GitHub at [pages.cloudflare.com](https://pages.cloudflare.com)
+
 ## Features
 
 - **Real-time Noise Monitoring**: Continuously measures ambient noise levels in decibels (dB)
