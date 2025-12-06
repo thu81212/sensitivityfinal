@@ -14,6 +14,15 @@ A real-time web application that analyzes and measures ambient noise levels in y
 ## Features
 
 - **Real-time Noise Monitoring**: Continuously measures ambient noise levels in decibels (dB)
+- **Speech Recognition & Word Detection**:
+  - Detects and displays spoken words in real-time
+  - Words appear with dynamic sizing based on volume
+  - Automatic fade-in and fade-out animations
+  - Uses Barrio font for dramatic effect
+- **Dynamic Background**:
+  - Changes between Loud.png and Quiet.png based on noise level
+  - Smooth transitions between states
+  - Customizable background images
 - **Visual Feedback**:
   - Live decibel meter with color-coded display
   - Real-time audio waveform visualization
@@ -37,10 +46,27 @@ The application uses the Web Audio API to:
 
 ## Usage
 
+### First Time Setup
+
+1. **Add Background Images** (Optional):
+   - Place `Loud.png` and `Quiet.png` in the root directory
+   - See [IMAGE_SETUP.md](IMAGE_SETUP.md) for detailed instructions
+   - Or use the included placeholder images
+
+### Running the Application
+
 1. Open `index.html` in a modern web browser
 2. Click "Start Monitoring" button
 3. Grant microphone access when prompted
-4. View real-time noise analysis and recommendations
+4. **Speak clearly** to see your words appear on screen
+5. View real-time noise analysis and recommendations
+
+### How It Works
+
+- **Quiet Environment** (< 50 dB): Background shows `Quiet.png`
+- **Loud Environment** (≥ 50 dB): Background shows `Loud.png`
+- **Spoken Words**: Appear on screen with size based on volume, then fade away
+- **Word Display**: Larger words = louder speech
 
 ### Noise Level Categories
 
@@ -53,9 +79,11 @@ The application uses the Web Audio API to:
 
 ## Technical Requirements
 
-- Modern web browser with Web Audio API support (Chrome, Firefox, Safari, Edge)
+- Modern web browser with Web Audio API and Web Speech API support
+- **Recommended**: Chrome/Edge (best speech recognition support)
 - Microphone access
 - HTTPS connection (required for microphone access on most browsers)
+- JavaScript enabled
 
 ## Privacy & Security
 
@@ -66,10 +94,19 @@ The application uses the Web Audio API to:
 
 ## Browser Compatibility
 
-- ✅ Chrome/Edge (Recommended)
+### Noise Monitoring (Supported on all)
+- ✅ Chrome/Edge
 - ✅ Firefox
 - ✅ Safari
 - ✅ Opera
+
+### Speech Recognition (Chrome/Edge only)
+- ✅ Chrome (Recommended)
+- ✅ Edge
+- ⚠️ Firefox (Limited support)
+- ⚠️ Safari (Limited support)
+
+**Note**: Speech recognition works best in Chrome and Edge browsers.
 
 ## Local Development
 
@@ -91,9 +128,14 @@ Then navigate to `http://localhost:8000`
 ## Files
 
 - `index.html` - Main HTML structure
-- `app.js` - JavaScript application logic and Web Audio API implementation
-- `styles.css` - Styling and responsive design
+- `app.js` - JavaScript application logic with Web Audio API and Speech Recognition
+- `styles.css` - Styling, animations, and responsive design
 - `README.md` - Documentation
+- `IMAGE_SETUP.md` - Instructions for setting up background images
+- `DEPLOYMENT.md` - Deployment guide
+- `create_placeholders.html` - Tool to generate placeholder images
+- `Loud.png` - Background image for loud environments (add your own)
+- `Quiet.png` - Background image for quiet environments (add your own)
 
 ## License
 

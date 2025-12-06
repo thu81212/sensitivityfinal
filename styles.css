@@ -303,3 +303,82 @@ footer {
 * {
     transition: background-color 0.3s ease;
 }
+
+/* Background Container */
+.background-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: background-image 1s ease-in-out;
+    opacity: 0.3;
+}
+
+/* Word Display Container */
+.word-display {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+/* Detected Word Styling */
+.detected-word {
+    position: absolute;
+    font-family: 'Barrio', cursive;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow:
+        0 0 10px rgba(0, 212, 255, 0.8),
+        0 0 20px rgba(0, 212, 255, 0.6),
+        0 0 30px rgba(0, 212, 255, 0.4),
+        3px 3px 10px rgba(0, 0, 0, 0.8);
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    -webkit-text-stroke: 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Fade In Animation */
+.detected-word.fade-in {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Fade Out Animation */
+.detected-word.fade-out {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 2s ease, transform 2s ease;
+}
+
+/* Container positioning */
+.container {
+    position: relative;
+    z-index: 10;
+}
+
+/* Adjust body for layering */
+body {
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Enhanced responsive design for word display */
+@media (max-width: 768px) {
+    .detected-word {
+        max-width: 80%;
+        font-size: 2em !important;
+    }
+}

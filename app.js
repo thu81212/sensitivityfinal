@@ -33,12 +33,144 @@ class NoiseSensitivityDetector {
         this.waveformCtx = this.waveformCanvas.getContext('2d');
         this.historyCtx = this.historyCanvas.getContext('2d');
 
+        // Speech recognition elements
+        this.recognition = null;
+        this.wordDisplay = document.getElementById('wordDisplay');
+        this.backgroundContainer = document.getElementById('backgroundContainer');
+        this.wordFrequency = {};
+        this.currentDecibels = 0;
+        this.isQuiet = true;
+
         this.initEventListeners();
+        this.initSpeechRecognition();
     }
 
     initEventListeners() {
         this.startBtn.addEventListener('click', () => this.start());
         this.stopBtn.addEventListener('click', () => this.stop());
+    }
+
+    initSpeechRecognition() {
+        // Check if browser supports speech recognition
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            console.warn('Speech recognition not supported in this browser');
+            return;
+        }
+
+        this.recognition = new SpeechRecognition();
+        this.recognition.continuous = true;
+        this.recognition.interimResults = true;
+        this.recognition.lang = 'en-US';
+
+        this.recognition.onresult = (event) => {
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+
+                if (event.results[i].isFinal) {
+                    // Process final transcript
+                    const words = transcript.trim().split(' ');
+                    words.forEach(word => {
+                        if (word.length > 2) { // Only track words longer than 2 characters
+                            this.trackWord(word.toLowerCase());
+                        }
+                    });
+                }
+            }
+        };
+
+        this.recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            if (event.error === 'no-speech') {
+                // Restart recognition if no speech detected
+                if (this.isMonitoring) {
+                    setTimeout(() => {
+                        if (this.isMonitoring) {
+                            this.recognition.start();
+                        }
+                    }, 1000);
+                }
+            }
+        };
+
+        this.recognition.onend = () => {
+            // Restart recognition if still monitoring
+            if (this.isMonitoring) {
+                setTimeout(() => {
+                    if (this.isMonitoring) {
+                        try {
+                            this.recognition.start();
+                        } catch (e) {
+                            console.error('Error restarting recognition:', e);
+                        }
+                    }
+                }, 100);
+            }
+        };
+    }
+
+    trackWord(word) {
+        // Track word frequency
+        this.wordFrequency[word] = (this.wordFrequency[word] || 0) + 1;
+
+        // Display word with current decibel level as "volume"
+        this.displayWord(word, this.currentDecibels);
+    }
+
+    displayWord(word, volume) {
+        // Calculate size based on volume (decibels)
+        const minSize = 40;
+        const maxSize = 200;
+        const normalizedVolume = Math.min(100, Math.max(30, volume));
+        const fontSize = minSize + ((normalizedVolume - 30) / 70) * (maxSize - minSize);
+
+        // Create word element
+        const wordEl = document.createElement('div');
+        wordEl.className = 'detected-word';
+        wordEl.textContent = word;
+        wordEl.style.fontSize = `${fontSize}px`;
+
+        // Random position (avoid edges)
+        const maxX = window.innerWidth - 300;
+        const maxY = window.innerHeight - 150;
+        const randomX = Math.random() * maxX + 50;
+        const randomY = Math.random() * maxY + 50;
+
+        wordEl.style.left = `${randomX}px`;
+        wordEl.style.top = `${randomY}px`;
+
+        // Add to display
+        this.wordDisplay.appendChild(wordEl);
+
+        // Trigger fade in animation
+        setTimeout(() => {
+            wordEl.classList.add('fade-in');
+        }, 10);
+
+        // Remove after fade out
+        setTimeout(() => {
+            wordEl.classList.add('fade-out');
+            setTimeout(() => {
+                wordEl.remove();
+            }, 2000);
+        }, 3000);
+    }
+
+    updateBackground(decibels) {
+        // Update background based on noise level
+        // Quiet: < 50 dB, Loud: >= 50 dB
+        const shouldBeQuiet = decibels < 50;
+
+        if (shouldBeQuiet !== this.isQuiet) {
+            this.isQuiet = shouldBeQuiet;
+
+            if (this.isQuiet) {
+                this.backgroundContainer.style.backgroundImage = 'url(Quiet.png)';
+            } else {
+                this.backgroundContainer.style.backgroundImage = 'url(Loud.png)';
+            }
+        }
     }
 
     async start() {
@@ -76,6 +208,15 @@ class NoiseSensitivityDetector {
             // Start analysis loop
             this.analyze();
 
+            // Start speech recognition
+            if (this.recognition) {
+                try {
+                    this.recognition.start();
+                } catch (e) {
+                    console.error('Error starting speech recognition:', e);
+                }
+            }
+
         } catch (error) {
             console.error('Error accessing microphone:', error);
             alert('Unable to access microphone. Please ensure you have granted microphone permissions.');
@@ -96,6 +237,18 @@ class NoiseSensitivityDetector {
         if (this.audioContext) {
             this.audioContext.close();
         }
+
+        // Stop speech recognition
+        if (this.recognition) {
+            try {
+                this.recognition.stop();
+            } catch (e) {
+                console.error('Error stopping speech recognition:', e);
+            }
+        }
+
+        // Clear word display
+        this.wordDisplay.innerHTML = '';
 
         // Update UI
         this.startBtn.disabled = false;
@@ -148,6 +301,12 @@ class NoiseSensitivityDetector {
     }
 
     updateDisplay(decibels) {
+        // Store current decibels for word display
+        this.currentDecibels = decibels;
+
+        // Update background based on noise level
+        this.updateBackground(decibels);
+
         // Update decibel value
         this.decibelValue.textContent = `${decibels.toFixed(1)} dB`;
 
