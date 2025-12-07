@@ -54,7 +54,7 @@ body {
 /* Detected Word Styling */
 .detected-word {
     position: absolute;
-    font-family: 'Barrio', cursive;
+    font-family: 'Barrio', 'Noto Sans SC', 'Microsoft YaHei', cursive, sans-serif;
     font-weight: bold;
     color: #B80000;
     text-shadow:
@@ -68,6 +68,7 @@ body {
     text-transform: uppercase;
     letter-spacing: 2px;
     -webkit-text-stroke: 2px rgba(0, 0, 0, 0.5);
+    line-height: 1.2;
 }
 
 /* Fade In Animation */

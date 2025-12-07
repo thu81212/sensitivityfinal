@@ -16,9 +16,11 @@ A real-time web application that analyzes and measures ambient noise levels in y
 - **Real-time Noise Monitoring**: Continuously measures ambient noise levels in decibels (dB)
 - **Speech Recognition & Word Detection**:
   - Detects and displays spoken words in real-time
+  - **Bilingual Support**: Automatically detects English and Mandarin Chinese (普通话)
+  - Auto-switches between languages based on what you speak
   - Words appear with dynamic sizing based on volume
   - Automatic fade-in and fade-out animations
-  - Uses Barrio font for dramatic effect
+  - Uses Barrio font for English, with Chinese font fallbacks
 - **Custom Background**:
   - Uses Frame 15.png as the main background image
   - Subtle opacity for better UI visibility
@@ -55,16 +57,22 @@ The application uses the Web Audio API to:
 ### Running the Application
 
 1. Open `index.html` in a modern web browser
-2. Click "Start Monitoring" button
-3. Grant microphone access when prompted
-4. **Speak clearly** to see your words appear on screen
-5. View real-time noise analysis and recommendations
+2. Grant microphone access when prompted (auto-starts)
+3. **Speak clearly** in English or Mandarin Chinese (普通话)
+4. Watch as detected words appear on screen
+5. The system automatically detects which language you're speaking
 
 ### How It Works
 
 - **Background**: `Frame 15.png` serves as the main background at full opacity
-- **Spoken Words**: Appear on screen with size based on volume, then fade away
-- **Word Display**: Larger words = louder speech (40px-200px based on decibel level)
+- **Red Sound Bars**: 64 vertical bars that respond to noise frequency in real-time
+- **Language Detection**: Starts with Mandarin Chinese (zh-CN), auto-switches to English (en-US) when detected
+- **Spoken Words**: Appear on screen in dark red (#B80000) with size based on volume
+- **Word Display**:
+  - Larger words = louder speech (40px-200px)
+  - Chinese characters display individually
+  - English words display as complete words
+  - Fade in (0.5s) → visible (3s) → fade out (2s)
 
 ### Noise Level Categories
 
@@ -99,12 +107,17 @@ The application uses the Web Audio API to:
 - ✅ Opera
 
 ### Speech Recognition (Chrome/Edge only)
-- ✅ Chrome (Recommended)
+- ✅ Chrome (Recommended - Best for bilingual support)
 - ✅ Edge
 - ⚠️ Firefox (Limited support)
 - ⚠️ Safari (Limited support)
 
-**Note**: Speech recognition works best in Chrome and Edge browsers.
+**Language Support**:
+- 🇨🇳 Mandarin Chinese (zh-CN / 普通话) - Primary
+- 🇺🇸 English (en-US) - Auto-detected
+- Automatic language switching based on detected speech
+
+**Note**: Speech recognition works best in Chrome and Edge browsers. Bilingual detection is most reliable in Chrome.
 
 ## Local Development
 

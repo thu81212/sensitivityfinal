@@ -48,21 +48,56 @@ class NoiseSensitivityDetector {
         this.recognition = new SpeechRecognition();
         this.recognition.continuous = true;
         this.recognition.interimResults = true;
-        this.recognition.lang = 'en-US';
+
+        // Set to Mandarin Chinese initially, will auto-switch if English detected
+        this.currentLang = 'zh-CN'; // Mandarin Chinese (Simplified)
+        this.alternateLang = 'en-US'; // English
+        this.recognition.lang = this.currentLang;
 
         this.recognition.onresult = (event) => {
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 const transcript = event.results[i][0].transcript;
 
                 if (event.results[i].isFinal) {
+                    // Auto-detect language and switch if needed
+                    const hasEnglish = /[a-zA-Z]+/.test(transcript);
+                    const hasChinese = /[\u4e00-\u9fa5]+/.test(transcript);
+
+                    // Switch language if needed
+                    if (hasEnglish && !hasChinese && this.currentLang !== this.alternateLang) {
+                        console.log('Switching to English recognition');
+                        this.switchLanguage(this.alternateLang);
+                        return;
+                    } else if (hasChinese && this.currentLang !== 'zh-CN') {
+                        console.log('Switching to Chinese recognition');
+                        this.switchLanguage('zh-CN');
+                        return;
+                    }
+
                     // Process final transcript
-                    const words = transcript.trim().split(' ');
+                    // For Chinese, split by character; for English, split by space
+                    let words;
+                    if (hasChinese) {
+                        // Chinese: display each character or word
+                        words = transcript.trim().split('');
+                    } else {
+                        // English: split by spaces
+                        words = transcript.trim().split(' ');
+                    }
+
                     words.forEach(word => {
-                        if (word.length > 2) { // Only track words longer than 2 characters
-                            this.trackWord(word.toLowerCase());
+                        if (word.length > 0 && word.trim() !== '') {
+                            this.trackWord(word);
                         }
                     });
                 }
+            }
+        };
+
+        this.recognition.onsoundstart = () => {
+            // Reset to primary language when sound starts
+            if (this.currentLang !== 'zh-CN') {
+                this.switchLanguage('zh-CN');
             }
         };
 
@@ -96,6 +131,31 @@ class NoiseSensitivityDetector {
         };
     }
 
+    switchLanguage(newLang) {
+        if (!this.recognition) return;
+
+        this.currentLang = newLang;
+
+        // Stop current recognition
+        try {
+            this.recognition.stop();
+        } catch (e) {
+            console.error('Error stopping recognition:', e);
+        }
+
+        // Update language and restart
+        setTimeout(() => {
+            if (this.isMonitoring) {
+                this.recognition.lang = newLang;
+                try {
+                    this.recognition.start();
+                } catch (e) {
+                    console.error('Error restarting recognition:', e);
+                }
+            }
+        }, 100);
+    }
+
     trackWord(word) {
         // Track word frequency
         this.wordFrequency[word] = (this.wordFrequency[word] || 0) + 1;
@@ -116,6 +176,12 @@ class NoiseSensitivityDetector {
         wordEl.className = 'detected-word';
         wordEl.textContent = word;
         wordEl.style.fontSize = `${fontSize}px`;
+
+        // Remove uppercase transformation for Chinese characters
+        const hasChinese = /[\u4e00-\u9fa5]+/.test(word);
+        if (hasChinese) {
+            wordEl.style.textTransform = 'none';
+        }
 
         // Random position (avoid edges)
         const maxX = window.innerWidth - 300;
