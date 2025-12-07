@@ -13,6 +13,8 @@ class NoiseSensitivityDetector {
         this.wordDisplay = document.getElementById('wordDisplay');
         this.wordFrequency = {};
         this.currentDecibels = 0;
+        this.lastSpeechTime = Date.now();
+        this.languageResetTimeout = null;
 
         // Sound wave visualization
         this.soundWaveCanvas = document.getElementById('soundWaveCanvas');
@@ -55,6 +57,10 @@ class NoiseSensitivityDetector {
         this.recognition.lang = this.currentLang;
 
         this.recognition.onresult = (event) => {
+            // Update last speech time
+            this.lastSpeechTime = Date.now();
+            this.resetLanguageTimer();
+
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 const transcript = event.results[i][0].transcript;
 
@@ -62,7 +68,7 @@ class NoiseSensitivityDetector {
                 const hasEnglish = /[a-zA-Z]+/.test(transcript);
                 const hasChinese = /[\u4e00-\u9fa5]+/.test(transcript);
 
-                // Switch language based on detected content (works on interim results too)
+                // Switch language based on detected content
                 if (hasEnglish && !hasChinese && this.currentLang !== this.alternateLang) {
                     console.log('English detected, switching to English recognition');
                     this.switchLanguage(this.alternateLang);
@@ -92,6 +98,11 @@ class NoiseSensitivityDetector {
                     });
                 }
             }
+        };
+
+        this.recognition.onspeechend = () => {
+            // Reset language timer when speech ends
+            this.resetLanguageTimer();
         };
 
         this.recognition.onerror = (event) => {
@@ -124,9 +135,26 @@ class NoiseSensitivityDetector {
         };
     }
 
+    resetLanguageTimer() {
+        // Clear existing timeout
+        if (this.languageResetTimeout) {
+            clearTimeout(this.languageResetTimeout);
+        }
+
+        // Set timeout to reset to Chinese after 3 seconds of no speech
+        this.languageResetTimeout = setTimeout(() => {
+            if (this.currentLang !== 'zh-CN' && this.isMonitoring) {
+                console.log('No activity, resetting to Chinese recognition');
+                this.switchLanguage('zh-CN');
+            }
+        }, 3000);
+    }
+
     switchLanguage(newLang) {
         if (!this.recognition) return;
+        if (this.currentLang === newLang) return; // Already in this language
 
+        console.log(`Switching from ${this.currentLang} to ${newLang}`);
         this.currentLang = newLang;
 
         // Stop current recognition
@@ -142,11 +170,12 @@ class NoiseSensitivityDetector {
                 this.recognition.lang = newLang;
                 try {
                     this.recognition.start();
+                    console.log(`Recognition restarted in ${newLang} mode`);
                 } catch (e) {
                     console.error('Error restarting recognition:', e);
                 }
             }
-        }, 100);
+        }, 150);
     }
 
     trackWord(word) {
