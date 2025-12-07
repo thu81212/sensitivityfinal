@@ -14,8 +14,26 @@ class NoiseSensitivityDetector {
         this.wordFrequency = {};
         this.currentDecibels = 0;
 
+        // Sound wave visualization
+        this.soundWaveCanvas = document.getElementById('soundWaveCanvas');
+        this.soundWaveCtx = this.soundWaveCanvas.getContext('2d');
+        this.frequencyData = null;
+
+        this.initCanvas();
         this.initSpeechRecognition();
         this.start();
+    }
+
+    initCanvas() {
+        // Set canvas size to match window
+        this.soundWaveCanvas.width = window.innerWidth;
+        this.soundWaveCanvas.height = window.innerHeight;
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            this.soundWaveCanvas.width = window.innerWidth;
+            this.soundWaveCanvas.height = window.innerHeight;
+        });
     }
 
     initSpeechRecognition() {
@@ -136,9 +154,10 @@ class NoiseSensitivityDetector {
             this.microphone = this.audioContext.createMediaStreamSource(stream);
 
             // Configure analyser
-            this.analyser.fftSize = 2048;
+            this.analyser.fftSize = 256;
             this.bufferLength = this.analyser.frequencyBinCount;
             this.dataArray = new Uint8Array(this.bufferLength);
+            this.frequencyData = new Uint8Array(this.bufferLength);
 
             // Connect nodes
             this.microphone.connect(this.analyser);
@@ -167,8 +186,11 @@ class NoiseSensitivityDetector {
     analyze() {
         if (!this.isMonitoring) return;
 
-        // Get frequency data
+        // Get time domain data for decibel calculation
         this.analyser.getByteTimeDomainData(this.dataArray);
+
+        // Get frequency data for visualization
+        this.analyser.getByteFrequencyData(this.frequencyData);
 
         // Calculate RMS (Root Mean Square) for volume
         let sum = 0;
@@ -187,8 +209,54 @@ class NoiseSensitivityDetector {
         // Store current decibels for word display
         this.currentDecibels = decibels;
 
+        // Draw sound wave visualization
+        this.drawSoundWave();
+
         // Continue loop
         this.animationId = requestAnimationFrame(() => this.analyze());
+    }
+
+    drawSoundWave() {
+        const canvas = this.soundWaveCanvas;
+        const ctx = this.soundWaveCtx;
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+
+        // Calculate bar properties
+        const barCount = 64; // Number of bars to display
+        const barWidth = width / barCount;
+        const barSpacing = 2;
+
+        // Draw bars
+        for (let i = 0; i < barCount; i++) {
+            // Sample frequency data
+            const dataIndex = Math.floor((i / barCount) * this.bufferLength);
+            const barHeight = (this.frequencyData[dataIndex] / 255) * height * 0.8;
+
+            // Calculate bar position
+            const x = i * barWidth;
+            const y = height - barHeight;
+
+            // Create gradient for red bars
+            const gradient = ctx.createLinearGradient(0, y, 0, height);
+            gradient.addColorStop(0, '#ff0000');
+            gradient.addColorStop(0.5, '#ff3333');
+            gradient.addColorStop(1, '#ff6666');
+
+            // Draw bar
+            ctx.fillStyle = gradient;
+            ctx.fillRect(x + barSpacing / 2, y, barWidth - barSpacing, barHeight);
+
+            // Add glow effect
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#ff0000';
+        }
+
+        // Reset shadow
+        ctx.shadowBlur = 0;
     }
 }
 
