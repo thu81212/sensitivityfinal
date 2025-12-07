@@ -58,22 +58,22 @@ class NoiseSensitivityDetector {
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 const transcript = event.results[i][0].transcript;
 
+                // Check both interim and final results for language detection
+                const hasEnglish = /[a-zA-Z]+/.test(transcript);
+                const hasChinese = /[\u4e00-\u9fa5]+/.test(transcript);
+
+                // Switch language based on detected content (works on interim results too)
+                if (hasEnglish && !hasChinese && this.currentLang !== this.alternateLang) {
+                    console.log('English detected, switching to English recognition');
+                    this.switchLanguage(this.alternateLang);
+                    return;
+                } else if (hasChinese && !hasEnglish && this.currentLang !== 'zh-CN') {
+                    console.log('Chinese detected, switching to Chinese recognition');
+                    this.switchLanguage('zh-CN');
+                    return;
+                }
+
                 if (event.results[i].isFinal) {
-                    // Auto-detect language and switch if needed
-                    const hasEnglish = /[a-zA-Z]+/.test(transcript);
-                    const hasChinese = /[\u4e00-\u9fa5]+/.test(transcript);
-
-                    // Switch language if needed
-                    if (hasEnglish && !hasChinese && this.currentLang !== this.alternateLang) {
-                        console.log('Switching to English recognition');
-                        this.switchLanguage(this.alternateLang);
-                        return;
-                    } else if (hasChinese && this.currentLang !== 'zh-CN') {
-                        console.log('Switching to Chinese recognition');
-                        this.switchLanguage('zh-CN');
-                        return;
-                    }
-
                     // Process final transcript
                     // For Chinese, split by character; for English, split by space
                     let words;
@@ -91,13 +91,6 @@ class NoiseSensitivityDetector {
                         }
                     });
                 }
-            }
-        };
-
-        this.recognition.onsoundstart = () => {
-            // Reset to primary language when sound starts
-            if (this.currentLang !== 'zh-CN') {
-                this.switchLanguage('zh-CN');
             }
         };
 
