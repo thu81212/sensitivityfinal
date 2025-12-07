@@ -20,7 +20,7 @@ A real-time web application that analyzes and measures ambient noise levels in y
   - Automatic fade-in and fade-out animations
   - Uses Barrio font for dramatic effect
 - **Custom Background**:
-  - Uses Loud.png as the main background image
+  - Uses Frame 15.png as the main background image
   - Subtle opacity for better UI visibility
 - **Visual Feedback**:
   - Live decibel meter with color-coded display
@@ -48,7 +48,7 @@ The application uses the Web Audio API to:
 ### First Time Setup
 
 1. **Add Background Image** (Optional):
-   - Place `Loud.png` in the root directory
+   - Place `Frame 15.png` in the root directory
    - See [IMAGE_SETUP.md](IMAGE_SETUP.md) for detailed instructions
    - Or use the included placeholder image
 
@@ -62,7 +62,7 @@ The application uses the Web Audio API to:
 
 ### How It Works
 
-- **Background**: `Loud.png` serves as the main background at 30% opacity
+- **Background**: `Frame 15.png` serves as the main background at full opacity
 - **Spoken Words**: Appear on screen with size based on volume, then fade away
 - **Word Display**: Larger words = louder speech (40px-200px based on decibel level)
 
@@ -131,7 +131,7 @@ Then navigate to `http://localhost:8000`
 - `README.md` - Documentation
 - `IMAGE_SETUP.md` - Instructions for setting up background image
 - `DEPLOYMENT.md` - Deployment guide
-- `Loud.png` - Main background image (add your own)
+- `Frame 15.png` - Main background image (add your own)
 
 ## License
 
