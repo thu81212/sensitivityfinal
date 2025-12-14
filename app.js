@@ -86,6 +86,9 @@ class InteractiveSpeechApp {
                 wordSpan.style.textTransform = 'none';
             }
 
+            // Initialize transform to ensure stability
+            wordSpan.style.transform = 'scaleY(1)';
+
             this.sentenceDisplay.appendChild(wordSpan);
             this.wordElements.push(wordSpan);
         });

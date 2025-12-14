@@ -56,7 +56,8 @@ body {
     gap: 20px;
     padding: 40px;
     white-space: nowrap;
-    overflow-x: visible;
+    overflow: visible;
+    min-height: 200px;
 }
 
 /* Individual Word Styling */
@@ -70,10 +71,12 @@ body {
     line-height: 1;
     transition: transform 0.05s ease-out;
     display: inline-block;
-    transform-origin: center bottom;
+    transform-origin: bottom center;
     opacity: 0.7;
     flex-shrink: 0;
     vertical-align: baseline;
+    will-change: transform;
+    position: relative;
 }
 
 /* Active word being spoken */
@@ -86,6 +89,7 @@ body {
 .sentence-word.completed {
     opacity: 0.4;
     color: #660000;
+    will-change: auto;
 }
 
 /* Enhanced responsive design for sentence display */
