@@ -125,9 +125,16 @@ class InteractiveSpeechApp {
                 const isMatch = this.matchWord(transcript, currentWord);
 
                 if (isMatch) {
+                    // Capture current transform to lock the word in place
+                    const currentTransform = this.wordElements[this.currentWordIndex].style.transform;
+
                     // Mark current word as completed
                     this.wordElements[this.currentWordIndex].classList.remove('active');
                     this.wordElements[this.currentWordIndex].classList.add('completed');
+
+                    // Lock the transform in place
+                    this.wordElements[this.currentWordIndex].style.transform = currentTransform;
+                    this.wordElements[this.currentWordIndex].dataset.locked = 'true';
 
                     // Move to next word
                     this.currentWordIndex++;
@@ -297,8 +304,11 @@ class InteractiveSpeechApp {
         // Store current decibels and volume
         this.currentDecibels = decibels;
 
-        // Calculate normalized volume (0-1) for stretching
-        this.currentVolume = Math.max(0, Math.min(1, (decibels - 30) / 70));
+        // Calculate normalized volume (0-1) for stretching with enhanced sensitivity
+        // Use exponential curve for more dramatic response to volume changes
+        let normalizedVolume = Math.max(0, Math.min(1, (decibels - 30) / 70));
+        // Apply power curve to make whispers and shouts more distinct
+        this.currentVolume = Math.pow(normalizedVolume, 0.8);
 
         // Apply stretch to active word based on volume
         this.stretchActiveWord();
@@ -316,10 +326,13 @@ class InteractiveSpeechApp {
         const activeWord = this.wordElements[this.currentWordIndex];
         if (!activeWord || !activeWord.classList.contains('active')) return;
 
+        // Don't stretch if word is locked
+        if (activeWord.dataset.locked === 'true') return;
+
         // Calculate stretch factor based on volume
-        // Range: 1 (normal) to 5 (very stretched) for dramatic effect
-        const minStretch = 1;
-        const maxStretch = 8;
+        // Range: 0.3 (whisper/tiny) to 20 (shout/huge) for extreme dramatic effect
+        const minStretch = 0.3;
+        const maxStretch = 20;
         const stretchFactor = minStretch + (this.currentVolume * (maxStretch - minStretch));
 
         // Apply vertical stretch (scaleY)
