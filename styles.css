@@ -65,7 +65,7 @@ body {
 .sentence-word {
     font-family: 'Barrio', 'Noto Sans SC', 'Microsoft YaHei', cursive, sans-serif;
     font-weight: bold;
-    color: #B80000;
+    color: #6B0000;
     font-size: 48px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -84,13 +84,13 @@ body {
 /* Active word being spoken */
 .sentence-word.active {
     opacity: 1;
-    color: #FF0000;
+    color: #990000;
 }
 
 /* Completed word */
 .sentence-word.completed {
     opacity: 0.4;
-    color: #660000;
+    color: #330000;
     will-change: auto;
 }
 
