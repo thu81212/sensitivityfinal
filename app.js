@@ -37,6 +37,7 @@ class InteractiveSpeechApp {
         this.currentWords = [];
         this.wordElements = [];
         this.isWaitingForWord = true;
+        this.maxStretchForCurrentWord = 1; // Track maximum stretch for active word
 
         this.initCanvas();
         this.initSpeechRecognition();
@@ -97,6 +98,9 @@ class InteractiveSpeechApp {
         this.currentWordIndex = 0;
         this.wordElements[0].classList.add('active');
         this.isWaitingForWord = true;
+
+        // Reset max stretch for first word
+        this.maxStretchForCurrentWord = 1;
     }
 
     initSpeechRecognition() {
@@ -128,19 +132,22 @@ class InteractiveSpeechApp {
                 const isMatch = this.matchWord(transcript, currentWord);
 
                 if (isMatch) {
-                    // Capture current transform to lock the word in place
-                    const currentTransform = this.wordElements[this.currentWordIndex].style.transform;
+                    // Lock the word at its maximum stretch (highest volume)
+                    const maxTransform = `scaleY(${this.maxStretchForCurrentWord})`;
 
                     // Mark current word as completed
                     this.wordElements[this.currentWordIndex].classList.remove('active');
                     this.wordElements[this.currentWordIndex].classList.add('completed');
 
-                    // Lock the transform in place
-                    this.wordElements[this.currentWordIndex].style.transform = currentTransform;
+                    // Lock the transform at maximum stretch
+                    this.wordElements[this.currentWordIndex].style.transform = maxTransform;
                     this.wordElements[this.currentWordIndex].dataset.locked = 'true';
 
                     // Move to next word
                     this.currentWordIndex++;
+
+                    // Reset max stretch for next word
+                    this.maxStretchForCurrentWord = 1;
 
                     if (this.currentWordIndex >= this.currentWords.length) {
                         // Sentence completed, move to next sentence
@@ -337,6 +344,11 @@ class InteractiveSpeechApp {
         const minStretch = 0.3;
         const maxStretch = 20;
         const stretchFactor = minStretch + (this.currentVolume * (maxStretch - minStretch));
+
+        // Track maximum stretch for current word
+        if (stretchFactor > this.maxStretchForCurrentWord) {
+            this.maxStretchForCurrentWord = stretchFactor;
+        }
 
         // Apply vertical stretch (scaleY)
         activeWord.style.transform = `scaleY(${stretchFactor})`;
