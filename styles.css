@@ -52,12 +52,13 @@ body {
     display: flex;
     flex-wrap: nowrap;
     justify-content: center;
-    align-items: baseline;
+    align-items: flex-end;
     gap: 20px;
     padding: 40px;
     white-space: nowrap;
     overflow: visible;
-    min-height: 200px;
+    min-height: 400px;
+    height: 400px;
 }
 
 /* Individual Word Styling */
@@ -71,12 +72,13 @@ body {
     line-height: 1;
     transition: transform 0.05s ease-out;
     display: inline-block;
-    transform-origin: bottom center;
+    transform-origin: 50% 100%;
     opacity: 0.7;
     flex-shrink: 0;
-    vertical-align: baseline;
+    vertical-align: bottom;
     will-change: transform;
     position: relative;
+    min-width: max-content;
 }
 
 /* Active word being spoken */
