@@ -57,8 +57,8 @@ body {
     padding: 40px;
     white-space: nowrap;
     overflow: visible;
-    min-height: 600px;
-    height: 600px;
+    min-height: 800px;
+    height: 800px;
 }
 
 /* Individual Word Styling */

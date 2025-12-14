@@ -340,9 +340,9 @@ class InteractiveSpeechApp {
         if (activeWord.dataset.locked === 'true') return;
 
         // Calculate stretch factor based on volume
-        // Range: 0.3 (whisper/tiny) to 20 (shout/huge) for extreme dramatic effect
-        const minStretch = 0.3;
-        const maxStretch = 20;
+        // Range: 0.1 (whisper/tiny) to 50 (shout/huge) for extreme dramatic effect
+        const minStretch = 0.1;
+        const maxStretch = 50;
         const stretchFactor = minStretch + (this.currentVolume * (maxStretch - minStretch));
 
         // Track maximum stretch for current word
