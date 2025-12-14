@@ -21,11 +21,13 @@ class InteractiveSpeechApp {
 
         // Sentence tracking
         this.sentences = [
-            // English sentences
-            "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG",
-            "HELLO WORLD HOW ARE YOU TODAY",
-            "SPEAK LOUDER TO STRETCH THE WORDS",
-            "PRACTICE MAKES PERFECT EVERY TIME"
+            // Humorous sentences
+            "I SCREAM YOU SCREAM WE ALL SCREAM FOR ICE CREAM",
+            "WHY DID THE CHICKEN CROSS THE ROAD",
+            "MY VOICE MAKES THE WORDS GO BOING BOING BOING",
+            "YELLING MAKES EVERYTHING BETTER OBVIOUSLY",
+            "PIZZA IS THE ANSWER NO MATTER THE QUESTION",
+            "I AM BASICALLY A HUMAN RUBBER BAND NOW"
         ];
         this.currentSentenceIndex = 0;
         this.currentWordIndex = 0;
