@@ -25,12 +25,7 @@ class InteractiveSpeechApp {
             "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG",
             "HELLO WORLD HOW ARE YOU TODAY",
             "SPEAK LOUDER TO STRETCH THE WORDS",
-            "PRACTICE MAKES PERFECT EVERY TIME",
-            // Chinese sentences
-            "你好 世界 欢迎 来到 这里",
-            "今天 天气 真的 很 好",
-            "大声 说话 可以 拉伸 文字",
-            "练习 让 我们 变得 更好"
+            "PRACTICE MAKES PERFECT EVERY TIME"
         ];
         this.currentSentenceIndex = 0;
         this.currentWordIndex = 0;
@@ -65,15 +60,8 @@ class InteractiveSpeechApp {
         // Get current sentence
         const sentence = this.sentences[this.currentSentenceIndex];
 
-        // Split into words (handle both English and Chinese)
-        const hasChinese = /[\u4e00-\u9fa5]+/.test(sentence);
-        if (hasChinese) {
-            // Chinese: split by spaces (words/characters are space-separated)
-            this.currentWords = sentence.split(' ').filter(w => w.trim().length > 0);
-        } else {
-            // English: split by spaces
-            this.currentWords = sentence.split(' ').filter(w => w.trim().length > 0);
-        }
+        // Split into words
+        this.currentWords = sentence.split(' ').filter(w => w.trim().length > 0);
 
         // Create word elements
         this.currentWords.forEach((word, index) => {
@@ -81,11 +69,6 @@ class InteractiveSpeechApp {
             wordSpan.className = 'sentence-word';
             wordSpan.textContent = word;
             wordSpan.dataset.index = index;
-
-            // Remove uppercase transformation for Chinese
-            if (/[\u4e00-\u9fa5]+/.test(word)) {
-                wordSpan.style.textTransform = 'none';
-            }
 
             // Assign random stretch multiplier to each word (0.5 to 2.5 for variety)
             const randomStretchMultiplier = 0.5 + Math.random() * 2.0;
@@ -119,11 +102,7 @@ class InteractiveSpeechApp {
         this.recognition = new SpeechRecognition();
         this.recognition.continuous = true;
         this.recognition.interimResults = true;
-
-        // Detect language of current sentence
-        const currentSentence = this.sentences[this.currentSentenceIndex];
-        const hasChinese = /[\u4e00-\u9fa5]+/.test(currentSentence);
-        this.recognition.lang = hasChinese ? 'zh-CN' : 'en-US';
+        this.recognition.lang = 'en-US';
 
         this.recognition.onresult = (event) => {
             if (!this.isWaitingForWord) return;
@@ -158,15 +137,6 @@ class InteractiveSpeechApp {
                         setTimeout(() => {
                             this.currentSentenceIndex = (this.currentSentenceIndex + 1) % this.sentences.length;
                             this.displaySentence();
-
-                            // Update recognition language for new sentence
-                            const newSentence = this.sentences[this.currentSentenceIndex];
-                            const newHasChinese = /[\u4e00-\u9fa5]+/.test(newSentence);
-                            const newLang = newHasChinese ? 'zh-CN' : 'en-US';
-
-                            if (this.recognition.lang !== newLang) {
-                                this.switchLanguage(newLang);
-                            }
                         }, 1000);
                     } else {
                         // Mark next word as active
