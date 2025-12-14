@@ -87,6 +87,10 @@ class InteractiveSpeechApp {
                 wordSpan.style.textTransform = 'none';
             }
 
+            // Assign random stretch multiplier to each word (0.5 to 2.5 for variety)
+            const randomStretchMultiplier = 0.5 + Math.random() * 2.0;
+            wordSpan.dataset.stretchMultiplier = randomStretchMultiplier;
+
             // Initialize transform to ensure stability
             wordSpan.style.transform = 'scaleY(1)';
 
@@ -343,7 +347,11 @@ class InteractiveSpeechApp {
         // Range: 0.1 (whisper/tiny) to 50 (shout/huge) for extreme dramatic effect
         const minStretch = 0.1;
         const maxStretch = 50;
-        const stretchFactor = minStretch + (this.currentVolume * (maxStretch - minStretch));
+        const baseStretchFactor = minStretch + (this.currentVolume * (maxStretch - minStretch));
+
+        // Apply random stretch multiplier for variety
+        const randomMultiplier = parseFloat(activeWord.dataset.stretchMultiplier) || 1.0;
+        const stretchFactor = baseStretchFactor * randomMultiplier;
 
         // Track maximum stretch for current word
         if (stretchFactor > this.maxStretchForCurrentWord) {
