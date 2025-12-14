@@ -132,15 +132,15 @@ class InteractiveSpeechApp {
                 const isMatch = this.matchWord(transcript, currentWord);
 
                 if (isMatch) {
-                    // Lock the word at its maximum stretch (highest volume)
-                    const maxTransform = `scaleY(${this.maxStretchForCurrentWord})`;
+                    // Lock the word at its current stretch (volume when recognized)
+                    const currentTransform = this.wordElements[this.currentWordIndex].style.transform;
 
                     // Mark current word as completed
                     this.wordElements[this.currentWordIndex].classList.remove('active');
                     this.wordElements[this.currentWordIndex].classList.add('completed');
 
-                    // Lock the transform at maximum stretch
-                    this.wordElements[this.currentWordIndex].style.transform = maxTransform;
+                    // Lock the transform at current stretch
+                    this.wordElements[this.currentWordIndex].style.transform = currentTransform;
                     this.wordElements[this.currentWordIndex].dataset.locked = 'true';
 
                     // Move to next word
