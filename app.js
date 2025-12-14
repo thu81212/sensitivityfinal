@@ -1,4 +1,4 @@
-class NoiseSensitivityDetector {
+class InteractiveSpeechApp {
     constructor() {
         this.audioContext = null;
         this.analyser = null;
@@ -10,19 +10,37 @@ class NoiseSensitivityDetector {
 
         // Speech recognition elements
         this.recognition = null;
-        this.wordDisplay = document.getElementById('wordDisplay');
-        this.wordFrequency = {};
+        this.sentenceDisplay = document.getElementById('sentenceDisplay');
         this.currentDecibels = 0;
-        this.lastSpeechTime = Date.now();
-        this.languageResetTimeout = null;
+        this.currentVolume = 0;
 
         // Sound wave visualization
         this.soundWaveCanvas = document.getElementById('soundWaveCanvas');
         this.soundWaveCtx = this.soundWaveCanvas.getContext('2d');
         this.frequencyData = null;
 
+        // Sentence tracking
+        this.sentences = [
+            // English sentences
+            "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG",
+            "HELLO WORLD HOW ARE YOU TODAY",
+            "SPEAK LOUDER TO STRETCH THE WORDS",
+            "PRACTICE MAKES PERFECT EVERY TIME",
+            // Chinese sentences
+            "你好 世界 欢迎 来到 这里",
+            "今天 天气 真的 很 好",
+            "大声 说话 可以 拉伸 文字",
+            "练习 让 我们 变得 更好"
+        ];
+        this.currentSentenceIndex = 0;
+        this.currentWordIndex = 0;
+        this.currentWords = [];
+        this.wordElements = [];
+        this.isWaitingForWord = true;
+
         this.initCanvas();
         this.initSpeechRecognition();
+        this.displaySentence();
         this.start();
     }
 
@@ -38,6 +56,46 @@ class NoiseSensitivityDetector {
         });
     }
 
+    displaySentence() {
+        // Clear previous sentence
+        this.sentenceDisplay.innerHTML = '';
+        this.wordElements = [];
+
+        // Get current sentence
+        const sentence = this.sentences[this.currentSentenceIndex];
+
+        // Split into words (handle both English and Chinese)
+        const hasChinese = /[\u4e00-\u9fa5]+/.test(sentence);
+        if (hasChinese) {
+            // Chinese: split by spaces (words/characters are space-separated)
+            this.currentWords = sentence.split(' ').filter(w => w.trim().length > 0);
+        } else {
+            // English: split by spaces
+            this.currentWords = sentence.split(' ').filter(w => w.trim().length > 0);
+        }
+
+        // Create word elements
+        this.currentWords.forEach((word, index) => {
+            const wordSpan = document.createElement('span');
+            wordSpan.className = 'sentence-word';
+            wordSpan.textContent = word;
+            wordSpan.dataset.index = index;
+
+            // Remove uppercase transformation for Chinese
+            if (/[\u4e00-\u9fa5]+/.test(word)) {
+                wordSpan.style.textTransform = 'none';
+            }
+
+            this.sentenceDisplay.appendChild(wordSpan);
+            this.wordElements.push(wordSpan);
+        });
+
+        // Mark first word as active
+        this.currentWordIndex = 0;
+        this.wordElements[0].classList.add('active');
+        this.isWaitingForWord = true;
+    }
+
     initSpeechRecognition() {
         // Check if browser supports speech recognition
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -51,58 +109,55 @@ class NoiseSensitivityDetector {
         this.recognition.continuous = true;
         this.recognition.interimResults = true;
 
-        // Set to Mandarin Chinese initially, will auto-switch if English detected
-        this.currentLang = 'zh-CN'; // Mandarin Chinese (Simplified)
-        this.alternateLang = 'en-US'; // English
-        this.recognition.lang = this.currentLang;
+        // Detect language of current sentence
+        const currentSentence = this.sentences[this.currentSentenceIndex];
+        const hasChinese = /[\u4e00-\u9fa5]+/.test(currentSentence);
+        this.recognition.lang = hasChinese ? 'zh-CN' : 'en-US';
 
         this.recognition.onresult = (event) => {
-            // Update last speech time
-            this.lastSpeechTime = Date.now();
-            this.resetLanguageTimer();
+            if (!this.isWaitingForWord) return;
 
             for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript;
+                const transcript = event.results[i][0].transcript.trim();
 
-                // Check both interim and final results for language detection
-                const hasEnglish = /[a-zA-Z]+/.test(transcript);
-                const hasChinese = /[\u4e00-\u9fa5]+/.test(transcript);
+                // Check if transcript contains the current word
+                const currentWord = this.currentWords[this.currentWordIndex];
+                const isMatch = this.matchWord(transcript, currentWord);
 
-                // Switch language based on detected content
-                if (hasEnglish && !hasChinese && this.currentLang !== this.alternateLang) {
-                    console.log('English detected, switching to English recognition');
-                    this.switchLanguage(this.alternateLang);
-                    return;
-                } else if (hasChinese && !hasEnglish && this.currentLang !== 'zh-CN') {
-                    console.log('Chinese detected, switching to Chinese recognition');
-                    this.switchLanguage('zh-CN');
-                    return;
-                }
+                if (isMatch) {
+                    // Mark current word as completed
+                    this.wordElements[this.currentWordIndex].classList.remove('active');
+                    this.wordElements[this.currentWordIndex].classList.add('completed');
 
-                if (event.results[i].isFinal) {
-                    // Process final transcript
-                    // For Chinese, split by character; for English, split by space
-                    let words;
-                    if (hasChinese) {
-                        // Chinese: display each character or word
-                        words = transcript.trim().split('');
+                    // Move to next word
+                    this.currentWordIndex++;
+
+                    if (this.currentWordIndex >= this.currentWords.length) {
+                        // Sentence completed, move to next sentence
+                        setTimeout(() => {
+                            this.currentSentenceIndex = (this.currentSentenceIndex + 1) % this.sentences.length;
+                            this.displaySentence();
+
+                            // Update recognition language for new sentence
+                            const newSentence = this.sentences[this.currentSentenceIndex];
+                            const newHasChinese = /[\u4e00-\u9fa5]+/.test(newSentence);
+                            const newLang = newHasChinese ? 'zh-CN' : 'en-US';
+
+                            if (this.recognition.lang !== newLang) {
+                                this.switchLanguage(newLang);
+                            }
+                        }, 1000);
                     } else {
-                        // English: split by spaces
-                        words = transcript.trim().split(' ');
+                        // Mark next word as active
+                        this.wordElements[this.currentWordIndex].classList.add('active');
                     }
 
-                    words.forEach(word => {
-                        if (word.length > 0 && word.trim() !== '') {
-                            this.trackWord(word);
-                        }
-                    });
+                    this.isWaitingForWord = false;
+                    setTimeout(() => {
+                        this.isWaitingForWord = true;
+                    }, 500);
                 }
             }
-        };
-
-        this.recognition.onspeechend = () => {
-            // Reset language timer when speech ends
-            this.resetLanguageTimer();
         };
 
         this.recognition.onerror = (event) => {
@@ -112,7 +167,11 @@ class NoiseSensitivityDetector {
                 if (this.isMonitoring) {
                     setTimeout(() => {
                         if (this.isMonitoring) {
-                            this.recognition.start();
+                            try {
+                                this.recognition.start();
+                            } catch (e) {
+                                console.error('Error restarting recognition:', e);
+                            }
                         }
                     }, 1000);
                 }
@@ -135,27 +194,21 @@ class NoiseSensitivityDetector {
         };
     }
 
-    resetLanguageTimer() {
-        // Clear existing timeout
-        if (this.languageResetTimeout) {
-            clearTimeout(this.languageResetTimeout);
-        }
+    matchWord(transcript, targetWord) {
+        // Normalize both strings for comparison
+        const normalizedTranscript = transcript.toLowerCase().trim();
+        const normalizedTarget = targetWord.toLowerCase().trim();
 
-        // Set timeout to reset to Chinese after 3 seconds of no speech
-        this.languageResetTimeout = setTimeout(() => {
-            if (this.currentLang !== 'zh-CN' && this.isMonitoring) {
-                console.log('No activity, resetting to Chinese recognition');
-                this.switchLanguage('zh-CN');
-            }
-        }, 3000);
+        // Check if transcript contains the target word
+        return normalizedTranscript.includes(normalizedTarget) ||
+               normalizedTarget.includes(normalizedTranscript);
     }
 
     switchLanguage(newLang) {
         if (!this.recognition) return;
-        if (this.currentLang === newLang) return; // Already in this language
+        if (this.recognition.lang === newLang) return;
 
-        console.log(`Switching from ${this.currentLang} to ${newLang}`);
-        this.currentLang = newLang;
+        console.log(`Switching to ${newLang}`);
 
         // Stop current recognition
         try {
@@ -176,59 +229,6 @@ class NoiseSensitivityDetector {
                 }
             }
         }, 150);
-    }
-
-    trackWord(word) {
-        // Track word frequency
-        this.wordFrequency[word] = (this.wordFrequency[word] || 0) + 1;
-
-        // Display word with current decibel level as "volume"
-        this.displayWord(word, this.currentDecibels);
-    }
-
-    displayWord(word, volume) {
-        // Calculate size based on volume (decibels)
-        const minSize = 40;
-        const maxSize = 200;
-        const normalizedVolume = Math.min(100, Math.max(30, volume));
-        const fontSize = minSize + ((normalizedVolume - 30) / 70) * (maxSize - minSize);
-
-        // Create word element
-        const wordEl = document.createElement('div');
-        wordEl.className = 'detected-word';
-        wordEl.textContent = word;
-        wordEl.style.fontSize = `${fontSize}px`;
-
-        // Remove uppercase transformation for Chinese characters
-        const hasChinese = /[\u4e00-\u9fa5]+/.test(word);
-        if (hasChinese) {
-            wordEl.style.textTransform = 'none';
-        }
-
-        // Random position (avoid edges)
-        const maxX = window.innerWidth - 300;
-        const maxY = window.innerHeight - 150;
-        const randomX = Math.random() * maxX + 50;
-        const randomY = Math.random() * maxY + 50;
-
-        wordEl.style.left = `${randomX}px`;
-        wordEl.style.top = `${randomY}px`;
-
-        // Add to display
-        this.wordDisplay.appendChild(wordEl);
-
-        // Trigger fade in animation
-        setTimeout(() => {
-            wordEl.classList.add('fade-in');
-        }, 10);
-
-        // Remove after fade out
-        setTimeout(() => {
-            wordEl.classList.add('fade-out');
-            setTimeout(() => {
-                wordEl.remove();
-            }, 2000);
-        }, 3000);
     }
 
     async start() {
@@ -274,7 +274,7 @@ class NoiseSensitivityDetector {
     analyze() {
         if (!this.isMonitoring) return;
 
-        // Get time domain data for decibel calculation
+        // Get time domain data for volume calculation
         this.analyser.getByteTimeDomainData(this.dataArray);
 
         // Get frequency data for visualization
@@ -294,14 +294,36 @@ class NoiseSensitivityDetector {
         // Normalize to typical ambient noise range (30-100 dB)
         decibels = Math.max(30, Math.min(100, decibels + 90));
 
-        // Store current decibels for word display
+        // Store current decibels and volume
         this.currentDecibels = decibels;
+
+        // Calculate normalized volume (0-1) for stretching
+        this.currentVolume = Math.max(0, Math.min(1, (decibels - 30) / 70));
+
+        // Apply stretch to active word based on volume
+        this.stretchActiveWord();
 
         // Draw sound wave visualization
         this.drawSoundWave();
 
         // Continue loop
         this.animationId = requestAnimationFrame(() => this.analyze());
+    }
+
+    stretchActiveWord() {
+        if (this.currentWordIndex >= this.wordElements.length) return;
+
+        const activeWord = this.wordElements[this.currentWordIndex];
+        if (!activeWord || !activeWord.classList.contains('active')) return;
+
+        // Calculate stretch factor based on volume
+        // Range: 1 (normal) to 5 (very stretched) for dramatic effect
+        const minStretch = 1;
+        const maxStretch = 8;
+        const stretchFactor = minStretch + (this.currentVolume * (maxStretch - minStretch));
+
+        // Apply vertical stretch (scaleY)
+        activeWord.style.transform = `scaleY(${stretchFactor})`;
     }
 
     drawSoundWave() {
@@ -350,5 +372,5 @@ class NoiseSensitivityDetector {
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
-    const detector = new NoiseSensitivityDetector();
+    const app = new InteractiveSpeechApp();
 });

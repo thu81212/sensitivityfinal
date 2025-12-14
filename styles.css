@@ -39,55 +39,70 @@ body {
     pointer-events: none;
 }
 
-/* Word Display Container */
-.word-display {
+/* Sentence Display Container */
+.sentence-display {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 1200px;
     pointer-events: none;
     z-index: 1000;
-    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 40px;
 }
 
-/* Detected Word Styling */
-.detected-word {
-    position: absolute;
+/* Individual Word Styling */
+.sentence-word {
     font-family: 'Barrio', 'Noto Sans SC', 'Microsoft YaHei', cursive, sans-serif;
     font-weight: bold;
     color: #B80000;
+    font-size: 48px;
     text-shadow:
         0 0 10px rgba(184, 0, 0, 0.8),
         0 0 20px rgba(184, 0, 0, 0.6),
         0 0 30px rgba(184, 0, 0, 0.4),
         3px 3px 10px rgba(0, 0, 0, 0.8);
-    opacity: 0;
-    transform: scale(0.5);
-    transition: opacity 0.5s ease, transform 0.5s ease;
     text-transform: uppercase;
     letter-spacing: 2px;
     -webkit-text-stroke: 2px rgba(0, 0, 0, 0.5);
     line-height: 1.2;
+    transition: transform 0.1s ease-out;
+    display: inline-block;
+    transform-origin: center bottom;
+    opacity: 0.7;
 }
 
-/* Fade In Animation */
-.detected-word.fade-in {
+/* Active word being spoken */
+.sentence-word.active {
     opacity: 1;
-    transform: scale(1);
+    color: #FF0000;
+    text-shadow:
+        0 0 20px rgba(255, 0, 0, 1),
+        0 0 40px rgba(255, 0, 0, 0.8),
+        0 0 60px rgba(255, 0, 0, 0.6),
+        5px 5px 15px rgba(0, 0, 0, 1);
 }
 
-/* Fade Out Animation */
-.detected-word.fade-out {
-    opacity: 0;
-    transform: scale(0.8);
-    transition: opacity 2s ease, transform 2s ease;
+/* Completed word */
+.sentence-word.completed {
+    opacity: 0.4;
+    color: #660000;
 }
 
-/* Enhanced responsive design for word display */
+/* Enhanced responsive design for sentence display */
 @media (max-width: 768px) {
-    .detected-word {
-        max-width: 80%;
-        font-size: 2em !important;
+    .sentence-display {
+        gap: 15px;
+        padding: 20px;
+    }
+
+    .sentence-word {
+        font-size: 32px;
     }
 }
